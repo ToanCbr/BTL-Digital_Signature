@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Hệ thống ký và xác thực tài liệu điện tử bằng chữ ký số{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-20px)' }
+                        },
+                        glow: {
+                            '0%': { boxShadow: '0 0 5px rgba(59, 130, 246, 0.5)' },
+                            '100%': { boxShadow: '0 0 20px rgba(59, 130, 246, 0.8)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Global brand colors: orange, sky-blue, white */
+        :root{
+            --brand-orange: #fb923c; /* orange-400 */
+            --brand-orange-500: #f97316; /* orange-500 */
+            --brand-sky: #0ea5e9; /* sky-500 */
+            --brand-sky-400: #38bdf8; /* sky-400 */
+            --brand-white: #ffffff;
+            --muted: rgba(15,23,42,0.04);
+        }
+
+    /* Treat the utility .text-white as dark text on light pages to keep readability */
+    .text-white { color: #0f172a !important; }
+
+        /* Make semi-transparent white backgrounds readable on page by using soft white */
+        .bg-white\/10 { background-color: rgba(255,255,255,0.85) !important; }
+        .bg-white\/5 { background-color: rgba(255,255,255,0.95) !important; }
+        .border-white\/10 { border-color: rgba(0,0,0,0.06) !important; }
+        .border-white\/20 { border-color: rgba(0,0,0,0.08) !important; }
+
+        /* Flash messages: green for success, orange/red for errors (keeps contrast) */
+        .flash-message { background-color: rgba(255,255,255,0.9) !important; border-color: rgba(0,0,0,0.06) !important; color: #111827 !important; }
+
+    /* Navbar branding: gradient from orange to sky-blue */
+    nav.custom-blue { background: linear-gradient(90deg, var(--brand-orange-500), var(--brand-sky)) !important; border-bottom: 1px solid rgba(255,255,255,0.06) !important; }
+        nav.custom-blue a, nav.custom-blue .text-white, nav.custom-blue .nav-link, nav.custom-blue button { color: #ffffff !important; }
+        nav.custom-blue.backdrop-blur-lg { backdrop-filter: blur(6px) !important; }
+
+          /* Override common Tailwind gradient utility classes so existing components use brand palette
+              (this avoids editing many files that use different from/to gradient utilities) */
+        .from-blue-500, .from-indigo-500, .from-purple-500, .from-pink-500, .from-cyan-500, .from-teal-500, .from-green-500, .from-yellow-400, .from-yellow-500, .from-gray-500 {
+            /* map many 'from-*' utilities to brand orange */
+            --tw-gradient-from: var(--brand-orange) !important;
+        }
+        .to-blue-500, .to-indigo-500, .to-purple-500, .to-pink-500, .to-cyan-500, .to-teal-500, .to-green-500, .to-yellow-500, .to-orange-500, .to-gray-500 {
+            /* map many 'to-*' utilities to brand sky */
+            --tw-gradient-to: var(--brand-sky) !important;
+        }
+
+        /* Text color adjustments for utility classes to match the new palette */
+    .text-blue-300, .text-cyan-300, .text-indigo-300, .text-pink-300, .text-yellow-300, .text-teal-300 { color: var(--brand-sky) !important; }
+    .text-sky-300, .text-sky-400, .text-sky-500 { color: var(--brand-sky) !important; }
+
+        /* Buttons and accents that used gray/blue should lean into orange/green */
+    .bg-gray-200, .bg-gray-300, .bg-gray-500 { background-color: var(--brand-orange) !important; color: #fff !important; }
+
+        /* Ensure file input 'file:' styled buttons match brand */
+    input[type=file]::file-selector-button, .file\:from-blue-500 { background: linear-gradient(90deg,var(--brand-orange),var(--brand-sky)) !important; color: #fff !important; }
+
+        /* Helper: tune subtle card shadows on white background */
+        .backdrop-blur-lg { backdrop-filter: blur(8px); }
+
+        /* Unified button styles: primary gradient (orange -> sky), white text, subtle shadow */
+        button, input[type="submit"], .btn, .btn-primary, a.btn, a.inline-flex {
+            background-image: linear-gradient(90deg, var(--brand-orange-500), var(--brand-sky)) !important;
+            color: #ffffff !important;
+            border: none !important;
+            padding: 0.6rem 1rem !important;
+            border-radius: 0.75rem !important;
+            box-shadow: 0 8px 24px rgba(14,165,233,0.08) !important;
+            transition: transform 160ms ease, filter 160ms ease, box-shadow 160ms ease !important;
+        }
+
+        /* Hover/active */
+        button:hover, input[type="submit"]:hover, .btn:hover, a.btn:hover, a.inline-flex:hover {
+            filter: brightness(0.96) !important;
+            transform: translateY(-2px) !important;
+        }
+        button:active, input[type="submit"]:active { transform: translateY(0) !important; }
+
+        /* Ensure elements that use .text-white keep visible white text when they are buttons */
+        button.text-white, a.text-white, .inline-flex.text-white, input[type="submit"].text-white { color: #ffffff !important; }
+
+        /* Focus ring using sky color */
+        button:focus, input[type="submit"]:focus, a:focus { outline: none !important; box-shadow: 0 0 0 6px rgba(14,165,233,0.12) !important; }
+    </style>
+
+</head>
+<body class="bg-white min-h-screen relative overflow-x-hidden text-gray-900">
+    <!-- Background (switched to white) -->
+    <div class="fixed inset-0 z-0 bg-white"></div>
+
+    <!-- Navigation -->
+        <nav class="relative z-50 custom-blue backdrop-blur-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    
+                    <h1 class="text-2xl font-bold">
+                        <a href="{{ url_for('index') }}" class="bg-gradient-to-r text-blue-400 bg-clip-text text-transparent hover:from-blue-300 hover:to-purple-300 transition-all duration-300">
+                            Hệ thống ký và xác thực tài liệu
+                        </a>
+                    </h1>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-1">
+                    <a href="{{ url_for('index') }}" class="nav-link px-4 py-2 rounded-xl text-white hover:bg-white/10 hover:text-blue-300 transition-all duration-300 relative group">
+                        <span class="relative z-10">Home</span>
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </a>
+                    <a href="{{ url_for('sign_file_route') }}" class="nav-link px-4 py-2 rounded-xl text-white hover:bg-white/10 hover:text-yellow-300 transition-all duration-300 relative group">
+                        <span class="relative z-10">Ký số file</span>
+                        <div class="absolute inset-0 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </a>
+                    <a href="{{ url_for('register') }}" class="nav-link px-4 py-2 rounded-xl text-white hover:bg-white/10 hover:text-green-300 transition-all duration-300 relative group">
+                        <span class="relative z-10">Tạo chữ ký</span>
+                        <div class="absolute inset-0 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </a>
+                    <a href="{{ url_for('verify') }}" class="nav-link px-4 py-2 rounded-xl text-white hover:bg-white/10 hover:text-pink-300 transition-all duration-300 relative group">
+                        <span class="relative z-10">Kiểm tra & xác thực</span>
+                        <div class="absolute inset-0 bg-gradient-to-r from-pink-500/20 to-rose-500/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </a>
+                    <a href="{{ url_for('signed_files') }}" class="nav-link px-4 py-2 rounded-xl text-white hover:bg-white/10 hover:text-cyan-300 transition-all duration-300 relative group">
+                        <span class="relative z-10">Lịch sử ký</span>
+                        <div class="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-teal-500/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </a>
+                    
+                </div>
+
+                <!-- Mobile menu button -->
+                <button id="mobile-menu-btn" class="md:hidden text-white p-2 rounded-lg hover:bg-white/10 transition-colors duration-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile Navigation -->
+            <div id="mobile-menu" class="md:hidden hidden pb-4">
+                <div class="space-y-2">
+                    <a href="{{ url_for('index') }}" class="block px-4 py-3 rounded-lg text-white hover:bg-white/10 hover:text-blue-300 transition-all duration-300">
+                        Home
+                    </a>
+                    <a href="{{ url_for('sign_file_route') }}" class="block px-4 py-3 rounded-lg text-white hover:bg-white/10 hover:text-yellow-300 transition-all duration-300">
+                        Ký số file
+                    </a>
+                    <a href="{{ url_for('register') }}" class="block px-4 py-3 rounded-lg text-white hover:bg-white/10 hover:text-green-300 transition-all duration-300">
+                        Tạo chữ ký
+                    </a>
+                    <a href="{{ url_for('verify') }}" class="block px-4 py-3 rounded-lg text-white hover:bg-white/10 hover:text-pink-300 transition-all duration-300">
+                        Kiểm tra & xác thực
+                    </a>
+                    <a href="{{ url_for('signed_files') }}" class="block px-4 py-3 rounded-lg text-white hover:bg-white/10 hover:text-cyan-300 transition-all duration-300">
+                        Lịch sử ký
+                    </a>
+                    
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="fixed top-20 right-4 z-50 space-y-2">
+                {% for category, message in messages %}
+                    <div class="flash-message animate-slide-up max-w-md bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-4 shadow-2xl
+                        {% if category == 'error' %}
+                            border-red-400/50 bg-red-500/10
+                        {% else %}
+                            border-green-400/50 bg-green-500/10
+                        {% endif %}">
+                        <div class="flex items-center space-x-3">
+                            <div class="flex-shrink-0">
+                                {% if category == 'error' %}
+                                    <div class="bg-red-500 rounded-full p-1">
+                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </div>
+                                {% else %}
+                                    <div class="bg-green-500 rounded-full p-1">
+                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-white font-medium">{{ message }}</p>
+                            </div>
+                            <button onclick="this.parentElement.parentElement.remove()" class="text-white/70 hover:text-white transition-colors duration-200">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main content -->
+    <main class="relative z-10">
+        {% block content %}{% endblock %}
+    </main>
+
+    
+
+    <!-- Mobile menu script -->
+    <script>
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Auto-hide flash messages
+        setTimeout(() => {
+            document.querySelectorAll('.flash-message').forEach(msg => {
+                msg.style.transition = 'all 0.5s ease-out';
+                msg.style.transform = 'translateX(100%)';
+                msg.style.opacity = '0';
+                setTimeout(() => msg.remove(), 500);
+            });
+        }, 5000);
+
+        // Add smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

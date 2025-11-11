@@ -119,13 +119,13 @@
 
 ## 5. Contact me
 
-    Phạm Trọng Toàn CNTT 16-01
+    Nguyễn Minh Đức CNTT 16-01
 
     Khoa: Công nghệ thông tin - Trường Đại học Đại Nam 
 
-    SĐT: 0328183280
+    SĐT: 0372334278
 
-    Email: phamtrongtoank4@gmail.com
+    Email: duc1608204@gmail.com
 
 
     
